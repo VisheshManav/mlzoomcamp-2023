@@ -2,7 +2,7 @@ import pickle
 from flask import Flask
 from flask import request, jsonify
 
-with open("model1.bin", "rb") as m_in:
+with open("model2.bin", "rb") as m_in:
   model = pickle.load(m_in)
 with open("dv.bin", "rb") as dv_in:
   dv = pickle.load(dv_in)

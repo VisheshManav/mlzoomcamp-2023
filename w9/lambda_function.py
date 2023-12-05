@@ -1,9 +1,9 @@
+import os
 from io import BytesIO
 from urllib import request
 import numpy as np
 from PIL import Image
 from tflite_runtime.interpreter import Interpreter
-
 
 def download_image(url):
   with request.urlopen(url) as resp:
@@ -26,10 +26,14 @@ def preprocess_input(url):
   x = np.array(x, dtype=np.float32)
   X = x * 1.0 / 255
   X = np.array([X])
+  return X
 
 def predict(url):
   X = preprocess_input(url)
-  interpreter = Interpreter(model_path='bees-wasps-v2.tflite')
+  if os.path.exists('./bees-wasps-v2.tflite'):
+    interpreter = Interpreter(model_path='bees-wasps-v2.tflite')
+  else:
+    interpreter = Interpreter(model_path='bees-wasps.tflite')
   interpreter.allocate_tensors()
 
   input_index = interpreter.get_input_details()[0]['index']
@@ -39,7 +43,7 @@ def predict(url):
   interpreter.invoke()
   preds = interpreter.get_tensor(output_index)
 
-  return dict(zip(['prob'], preds[0]))
+  return dict(zip(['prob'], preds[0].tolist()))
 
 def lambda_handler(event, context):
   url = event['url']
